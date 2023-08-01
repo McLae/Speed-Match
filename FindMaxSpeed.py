@@ -21,22 +21,15 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
 
 
     # individual block section length (scale feet)
-    blockN = float(133)  # 132.5778 feet  Phil's test track
-    blockHO = float(62)  #  61.6264 feet  R550 Kato track
+    blockN = float(5.38)  # 5.38 inches Kato R348 with 16 sensors
+    blockHO = float(8.5)  #  8.5 inches  R550 Kato track
 
       #note: live calculation of conversions from inches per second to miliseconds done offline for speed. Factors for HO and N scale provided.
     fudgeHO = float(0.20206659) # HO
-    fudgeN = float(0.11) # N
+    fudgeN = float(0.1100) # N
 
     fudge = fudgeHO # set fudge default as HO
 
-
-
-#	blockN = float(108)  # 108.?    feet  Kent's test track
-#   blockHO = float(65)  #  65.312  feet  Kent's test track
-
-#   blockHO = float(123)  #  123.2528 feet per two track sections TeamDigital
-#   numBlocksHO = float(8) #  for TeamDigital
 
     long = False
 # +++ TLS 3/17/12 more test numbers. was 5. Compensate for odd values on specific track sections
