@@ -22,7 +22,15 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
 
     # individual block section length (scale feet)
     blockN = float(133)  # 132.5778 feet  Phil's test track
-    blockHO = float(62)  #  61.6264 feet  Phil's test track, Kato track
+    blockHO = float(62)  #  61.6264 feet  R550 Kato track
+
+      #note: live calculation of conversions from inches per second to miliseconds done offline for speed. Factors for HO and N scale provided.
+    fudgeHO = float(0.20206659) # HO
+    fudgeN = float(0.11) # N
+
+    fudge = fudgeHO # set fudge default as HO
+
+
 
 #	blockN = float(108)  # 108.?    feet  Kent's test track
 #   blockHO = float(65)  #  65.312  feet  Kent's test track
@@ -119,7 +127,7 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
         self.waitChange(sensorlist)
         self.waitChange(sensorlist)
         self.waitSensorActive(sensorlist)
-
+        print "sensorlist: ",sensorlist
         stoptime = java.lang.System.currentTimeMillis()
         runtime = stoptime - starttime
         return runtime, starttime, stoptime
@@ -150,7 +158,9 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
                 print "        Measurement #",z
             else :
 
-                speed = (blocklength / (duration / 1000.0)) * (3600.0 / 5280)	
+                mph = blocklength / elapsed;
+                speed = mph / self.fudge;
+                #speed = (blocklength / (duration / 1000.0)) * (3600.0 / 5280)	
                 speedlist.append(speed)
 
                 print "Measured Speed MPH =",round(speed,1) , " Measurement #",z
@@ -289,12 +299,15 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
 
         if self.Scale.getSelectedItem() == "N Scale" :
             block = self.blockN
+            self.fudge = self.fudgeN
         if self.Scale.getSelectedItem() == "HO Scale" :
             block = self.blockHO
+            self.fudge = self.fudgeHO
 
         else :
             # if user forgets to click a scale button, then it's N scale
-            block = self.blockN
+            block = self.blockHO
+            self.fudge = self.fudgeHO
 
         print self.Scale.getSelectedItem()
         print "Type of locomotive being tested is",self.Locomotive.getSelectedItem()
