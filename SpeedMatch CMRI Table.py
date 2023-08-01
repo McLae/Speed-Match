@@ -1,3 +1,8 @@
+# Script revides and updated for use with Arduino/CMRI and JMRI V5.2+
+# note that there is a different script to speed match using CV5. User interface and process are very close to the same, except instead of writing to speed table, CV5 is used.
+# the following notes are from the last version.
+# Thomas Stephens, AUgust 2023
+
 #First and foremost, this Speed matching script could not have been created without the help and previous work from the following people:
 # Authors: Phil Klein, Version 2.14 copyright 2010
 #           Thomas Stephens, Version SpeedTLSv5_B Copyright Jan 2013
@@ -45,24 +50,25 @@
 #Authors: Phil Klein, Version 2.14 copyright 2010
 #           Thomas Stephens, Version SpeedTLSv5_B Copyright Jan 2013
 #           Eric Bradford, Version UltimateSpeedMatch_v1.0, Copyright Version 1.0 Feb 2013
-
+#           Thomas Stephens, Speedmatch HO & N 2.1, same copyright as JMRI (open source)
 #
 #   Hardware tested with this script
-#   Command Station - Digitrax DCS100, Digitrax Zypher 
-#   Train Detection - BDL168 (Board Address 1),Team Digital SIC24 with DBD22's 
-#   Computer Interface - MS100, Locobuffer II, PR3
-#   JMRI Software 3.0 OR GREATER IS REQUIRED for this script to work.
+#  
+#   Command Station - SPROG 
+#   Train Detection - Arduino CMRI with IR detectors SW-201 ande two shift in register chips 74HC165
+#   Computer Interface - USB
+#   JMRI Software 5.0 OR GREATER IS REQUIRED for this script to work.
 #   By opening up the JMRI Sysem Console screen ("Help Tab" then "System console"), one can see what is being done on the track.  Useful for problem solving.
 
 #   Track - 12 pieces of Kato N scale 19" Radius Unitrak
-#   Track - 16 pieces of Kato HO scale 21 5/8" Radius Unitrak
-#   I used one sensor for each piece of HO scale track
-#   I used one sensor for every 2 pieces of N scale track
-#   The HO & N tracks share sensors 1 - 12
-#   HO Track also uses sensors 13 - 16
-
-
-#   Added step list for ESU decoders
+#   Track - 16 pieces of Kato HO R550 Unitrak
+#   For 16 piece track per circle, one IR detector at each track joint.
+#   For other track sections (Including other guage track) sensors are put at 16 even intervals. 
+#   recomended at n/s/e/w compass points, then 4 more 1/2 between eant sensor pair, then repeat for last 8.
+#   Complete BOM, wiring diagram, arduino sketch, and operating instructions available as separate document in release ZIP file
+#   
+#  
+#   Prior to 5/2008
 #   Added redo time measurement when start time and stop time are the same when using the MS100
 #   Fixed writing values higher than 255 to the decoder
 #   Fixed writing values lower than 1
@@ -101,10 +107,11 @@
 #   03/17/12        increased numbers of values in countsensor to compensate for odd values on specific track sections
 #   02/18/2013  Changed number of measurements from 1 to 4 for 100 mph by adding a "high speed array"..
 #   02/18/2013  Corrected decoder lists for speed measurements.  Wrong list being used due to python coding issues.
-#   02/18/2013  Set up that if user forgets to choose scale, default is N-SCALE.
+#   02/18/2013  Set up that if user forgets to choose scale, default is HO-SCALE.
 #   02/18/2013  Text File now being created on windows PC desktop (at least for Win XP) for future use.
 #   02/18/2013  Added comments by commands throughout the script to help others understand what is taking place.
 
+# version control now using GIT
 
 
 
@@ -118,19 +125,32 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
 
     # individual block section length (scale feet)
     blockN = float(133)  # 132.5778 feet  Phil's test track
-    blockHO = float(62)  #  61.6264 feet  Phil's test track, Kato track
+    blockHO = float(62)  # Kato R550 track
 
-#   blockN = float(108)  # 108.?    feet  Kent's test track
-#   blockHO = float(65)  #  65.312  feet  Kent's test track
-
-#   blockHO = float(123)  #  123.2528 feet per two track sections TeamDigital
-#   numBlocksHO = float(8) #  for TeamDigital
+# FOr different track, get track length from SCARM track editor, or other track length source.
+# note that all track section in use must be the same length.
 
     long = False
 # +++ TLS 3/17/12 more test numbers. was 5. Compensate for odd values on specific track sections
-    countsensor = 7 # Use 1 for testing and 6 for running
+    countsensor = 7 # Use 1 for testing and 7 for running
 # --- TLS
-
+#---------
+    # function to write CV value, wait and print confirm.
+    def outputCV (self, CVnum, CVvalue):
+        self.programmer.writeCV( CVnum  , CVvalue, None )
+        print "write - CV %s with %d" % (CVnum, CVvalue)
+        self.waitMsec( 500 )
+        return
+    # function to write indexed CV value, wait and print confirm.
+    def outputIndexCV (self, CVnum, CVvalue, CV31 = 0, CV32 = 0):
+        self.programmer.writeCV( "CV31"  , CV31, None )
+        self.waitMsec( 200 )
+        self.programmer.writeCV( "CV32"  , CV32, None )
+        self.waitMsec( 200 )
+        self.programmer.writeCV( CVnum  , CVvalue, None )
+        print "write - CV %s with %d" % (CVnum, CVvalue)
+        self.waitMsec( 500 )
+        return
     # init() is called exactly once at the beginning to do
     # any necessary configuration.
     def init(self):
@@ -253,8 +273,6 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
         self.TsunamiStepList = [
                 14.5,   28.5,   42.5,   57, 71, 85, 99]
 
-        self.ESUStepList = [
-                12, 27, 41, 56, 70, 85, 99]
         self.XXXStepList = [
                 14, 29, 43, 57, 71, 86, 100]
 
@@ -497,42 +515,41 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
         print "-----\n"
  
         # This will change FX Rate and Keep Alive on Digitrax Decoders
-        # This will change Random Sound Max on ESU LokSound Decoders
+      
 # 08/25/08
 # 09/22/08
         if decodertype == "QSI-BLI" :
-            self.programmer.writeCV(62, 0, None) # Turn off verbal reporting on QSI decoders
+#            self.programmer.writeCV(62, 0, None) # Turn off verbal reporting on QSI decoders
+            self.outputCV( "62", 0)
             self.waitMsec(1000)
 
         if decodertype == "Digitrax" :
-            self.programmer.writeCV(57, 0, None) # Turn OFF Back EMF as per note above.
+            self.outputCV( "57", 0)
             self.waitMsec(1000)
             
-            self.programmer.writeCV(25, 0, None) # Turn off manufacture defined speed tables
-        self.waitMsec(750)
+            #self.programmer.writeCV(25, 0, None) # Turn off manufacture defined speed tables
+            self.outputCV( "25", 0)
+    
 
-        if self.long == True :          #turn off speed tables
-            self.programmer.writeCV(29, 34, None)
+        if self.long == True :          #turn on speed tables
+            self.outputCV( "29", 50)
         else:
-            self.programmer.writeCV(29, 2, None)
+            self.outputCV( "29", 18)
 
-        self.waitMsec(500)
+    
         #self.programmer.writeCV(2, 0, None)    #Start Voltage off (EWB--CV not changed due to high max forward/reverse speeds measured.  speeds > 225mph!)
-        #self.waitMsec(500)
-        self.programmer.writeCV(3, 0, None) #Acceleration off
-        self.waitMsec(500)
-        self.programmer.writeCV(4, 0, None) #Deceleration off
-        self.waitMsec(500)
-        self.programmer.writeCV(19, 0, None)    #Clear consist # not turned off as thie might be the DCC address.
-        self.waitMsec(500)
-        #self.programmer.writeCV(5, 0, None)    #Maximum Voltage off  (EWB--CV not changed due to high max forward/reverse speeds measured.  speeds > 225mph!)
-        #self.waitMsec(500)
-        #self.programmer.writeCV(6, 0, None)    #Mid Point Voltage off  (EWB--CV not changed due to high max forward/reverse speeds measured.  speeds > 225mph!)
-        #self.waitMsec(500)
-        self.programmer.writeCV(66, 0, None) #Turn off Forward Trim
-        self.waitMsec(500)
-        self.programmer.writeCV(95, 0, None) #Turn off reverse Trim
-        self.waitMsec(500)
+
+        #self.programmer.writeCV("3", 0, None) #Acceleration off
+        self.outputCV( "3", 0)
+
+        #self.programmer.writeCV("4", 0, None) #Deceleration off
+        self.outputCV( "4", 0)
+#        self.outputCV( "19", 0) # may use this for throttle
+        #self.programmer.writeCV("19", 0, None)    #Clear consist # not turned off as thie might be the DCC address.
+        self.outputCV( "5", 255)
+        self.outputCV( "6", 0)
+        self.outputCV( "66", 128) # remove trim
+        self.outputCV( "95", 128) # remove trim
 
         # Run Locomotive for 10 laps each direction to warm it up
 
@@ -629,15 +646,10 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
 
             # Set speed table CV's to determine which type of TCS decoder it is
     
-            self.programmer.writeCV(90,50, None)
-            self.programmer.writeCV(93,249, None)
-            self.waitMsec(250)
-
-            # Turn on speed table
-            if self.long == True :
-                self.programmer.writeCV(29, 50, None)
-            else:
-                self.programmer.writeCV(29, 18, None)
+            #self.programmer.writeCV(90,50, None)
+            self.outputCV( "90", 50)
+            #self.programmer.writeCV(93,249, None)
+            self.outputCV( "93", 249)
             self.waitMsec(250)
 
             self.throttle.speedSetting = (.85)
@@ -667,7 +679,11 @@ class AutoSpeedTable(jmri.jmrit.automat.AbstractAutomaton) :
             steplist = self.TsunamiStepList
         elif decodertype == "MRC" :
             steplist = self.MRCStepList
-
+        elif decodertype == "ESU" :
+            decodertype = "Unknown"
+            print "to speed match Loksound, please use teh CV5 version of this script"
+            self.memory25.value = "Use CV5 script to speed match Loksound decoder"
+            return 1
         else :  #User doesn't know decoder type
                 #and we couldn't figure it out 
             print "Decoder is unknown"
