@@ -1,0 +1,29 @@
+2022-09-01 18:38:34,817 automat.AbstractAutomaton             WARN  - Unexpected Exception ends AbstractAutomaton thread [Automated Speed Table]
+Traceback (most recent call last):
+  File "<script>", line 508, in handle
+TypeError: writeCV(): 1st arg can't be coerced to String
+
+	at org.python.core.Py.TypeError(Py.java:236)
+	at org.python.core.PyReflectedFunction.throwError(PyReflectedFunction.java:213)
+	at org.python.core.PyReflectedFunction.throwBadArgError(PyReflectedFunction.java:316)
+	at org.python.core.PyReflectedFunction.throwError(PyReflectedFunction.java:325)
+	at org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:171)
+	at org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:208)
+	at org.python.core.PyObject.__call__(PyObject.java:512)
+	at org.python.core.PyObject.__call__(PyObject.java:517)
+	at org.python.core.PyMethod.__call__(PyMethod.java:171)
+	at org.python.pycode._pyx3.handle$5(<script>:1018)
+	at org.python.pycode._pyx3.call_function(<script>)
+	at org.python.core.PyTableCode.call(PyTableCode.java:173)
+	at org.python.core.PyBaseCode.call(PyBaseCode.java:306)
+	at org.python.core.PyBaseCode.call(PyBaseCode.java:197)
+	at org.python.core.PyFunction.__call__(PyFunction.java:485)
+	at org.python.core.PyMethod.instancemethod___call__(PyMethod.java:237)
+	at org.python.core.PyMethod.__call__(PyMethod.java:228)
+	at org.python.core.PyMethod.__call__(PyMethod.java:218)
+	at org.python.core.PyMethod.__call__(PyMethod.java:213)
+	at org.python.core.PyObject._jcallexc(PyObject.java:3565)
+	at org.python.core.PyObject._jcall(PyObject.java:3598)
+	at org.python.proxies.__builtin__$AutoSpeedTable$3.handle(Unknown Source)
+	at jmri.jmrit.automat.AbstractAutomaton.run(AbstractAutomaton.java:143)
+	at java.base/java.lang.Thread.run(Thread.java:829)
