@@ -1,0 +1,161 @@
+Strategy for CV Optimization
+
+Finding the right combination of CV settings requires a certain amount of experimentation and patience to get the best performance. Be aware that these settings will also vary from one locomotive to another. Take notes of your CV settings so you can use them as starting points when configuring other locomotives. Overdoing a particular setting can actually degrade performance so changes should be made in small increments (+/- 10 or so) until the desired performance is attained. The default settings should provide satisfactory performance when used with most HO and N scale motors.
+
+SoundTraxx suggest the following procedure to help fine-tune the CV settings:
+
+1. Begin with each CV set to its default value: CV 10 = 0, CV 209 = 25, CV 210 = 20, and CV 212 = 255. In addition, set CV 2 (Vstart) to 0.
+
+2. With the locomotive on level track, set the throttle to around speed step 20.
+
+3. Adjust the value in CV 209 (Proportional) with increasingly higher values just until you begin to notice some jerkiness in the locomotive speed. Reduce the setting in CV 209 to the value just before the jerkiness started.
+
+4. Adjust the value in CV 210 (Static) with increasingly higher values until you begin to notice some oscillation in the locomotive speed whenever the throttle setting is changed. Reduce the setting in CV 210 to the value just before the oscillation started.
+
+Note: When using load compensation, it is unnecessary to set large values into CV 2 (Start Voltage). This is because the load compensation algorithm will automatically adjust the motor power up to reach desired throttle setting. Therefore CV 2 can usually be set to 0 when load compensation is enabled.
+
+Setting the Load Compensation Curve
+
+Tsunami provides two degrees of freedom for controlling the amount of load compensation applied to the motor over the throttle range using CV 10 (Back-Emf Cutout) and CV 212 (Intensity).
+
+In general, you will want full load compensation at low speeds, which gradually reduces to zero load compensation at full throttle and may be achieved by setting CV 10 to 126.
+
+When operating in a consist, you may need to reduce the value in CV 212 which will reduce the low speed load compensation and avoid working the locomotives against each other due to slightly different running characteristics.
+
+SoundTraxx Blog Procedure:
+
+In this example lets set up an Athearn Genesis SD60M equipped with a TSU-GN1000 to ideal motor control settings.  We personally like to slow the locomotive down out of the box but not to the point that it isn’t realistic.  In this example: set
+
+CV 209 to a value of 29
+
+CV 210 to a value of 18
+
+CV 212 to a value of 80 (although the lower you go in this CV the slower the locomotive will run).
+
+CV 209 is known as the Kp Coefficient and is adjusting the gain factor for the PID motor control equation. 
+
+CV 210 adjusts the gain factor of the Ki coefficient for the PID motor control equation.
+
+CV 212 adjusts the motor intensity.
+
+If you set these values too high the motor will run very rough, also if you set the values to 0 then the motor will stop.
+
+When adjusting these CVs, start with 209 and 210 at very low values and increase them each by 1-2 until the model runs smoother.  If it begins to run rough lower the value back down.  Once you find the motor running smooth take CV 212 and decrease it by 10s until it gets you to the slow speed you desire in speed step 1.  Also, when using a Back EMF decoder with advanced motor control, make sure to leave CV 2 at a value of 0.  Add in a bit of momentum, and your train will start up smooth as silk.
+
+Bruce Petrarca (AKA MrDCC / Litchfield Station) Procedure:
+
+1) Set CV2 to 0
+
+2) Shut off momentum (CV3 = 0; CV4 = 0)
+
+3) Set CV 209 (Proportional) to 0
+
+4) Set CV210 (Static) to 0
+
+5) Set the loco moving forward on speed step 1 (128 speed step mode recommended)
+
+6) Adjust CV210 until the loco just moves, very slowly - will be jerky
+
+7) Adjust CV209 until the loco smooths out
+
+If you want EXTREME low speed control, you can adjust from the above settings. Reduce CV210 by 1 and then adjust CV209 up until you get movement.
+
+Note: Setting both CV209 and 210 to zero will stop the motor. Do not be surprised.
+
+Digitrax PID setting procedure translated into Soundtraxx:
+
+Note; The CV values shown have been scaled to match equivalent Soundtraxx CV values. This is presented only as another idea for setting things up and there has been no testing on my part to know if it even works.
+
+1) Put the loco on level track and run it at about 20% of full speed (6/26 for 28/128 speed step range).
+
+2) Program CV212 (Intensity) to an intensity value of 85 (Digitrax 5/15).
+
+3) Using Ops mode programming, change/increase the value in CV210 (Static) from the default value of 128 (Digitrax 128/255) upward until you observe the loco jumping as speed steps increase. Finish this step by now programming CV210 to the value just before the jumping started.
+
+4) Follow the same procedure with CV214 (Dynamic), beginning with the default value of 48 (Digitrax 48/255) and increasing it until you notice the loco oscillating, faster-slower, faster-slower, as speed is increased. Finish this step by programming CV214 to the value just before the oscillation started.
+
+5) Follow the same procedure with CV212 (Intensity), beginning with the value 85 (Digitrax 5/15) as programmed in step 2. Increase the value in this CV until the speed when going up hill is roughly equivalent to the speed on level track. This will yield a best intensity consistent with the locomotive characteristics.
+
+Notes from the Internet:
+
+1) CV213/14: Adjusting CV213 can achieve very good low speed at the expense of full speed. You have to strike a balance but try values between 5 & 10. The default setting of 15 in both CV213/14 appears to be too high for a lot of motors. But keep CV213/14 set to the same value what ever you end up with. Setting CV214 to a value 3x CV213 will stop the motor in its tracks unless you bring the speed step way up.
+
+2) There is a report that using the User Defined Speed Table CV 25 defeats the BEMF tweaks you make. The idea here was to make up for the effects CV213 had on the speed range. [3]
+
+3) Recent test that achieve good results with CV213/14 set to 5 first. Then set CV209 (Proportional) to max 255. Then reduce CV212 (Intensity) to get it to run smooth which was about 80. Playing with CV210 (Static) did not seem to change much at slow speeds.
+
+Detlef's TSU Tuning Procedure  (Detlef spends a lot of time tunning locomotives and can be found very active on the SoundTraxx Yahoo Discussion group).  This is a copy of what he posted.
+
+A common complaint of Soundtraxx Tsunami decoders, particularly the diesel decoders, is that they have poor slow speed performance. Out of the package, they will tend to ‘jerk’ a locomotive to a start, say 5 scale MPH. Same for coming to a stop. But that does not mean they cannot run smoothly. With a little tweaking, these babies will let your loco run like they are gliding on silk!
+
+1) Make sure track and wheels are clean. None of this works without good connection between the track and the loco. If you have trouble with this, don't worry about BEMF tuning, get some help and come back when you have reliable trains and track. (What is Back EMF? Click HERE.)
+
+2) Shut off all momentum. CV3 = 0 and CV4 = 0
+
+3) I also start by enabling speed tables now, just with a straight line. This will allow you to do speed trim later without having to come back to this: CV 25 = 2 and CV29 = 50.
+
+4) Probablly different from other's philosophies, I do tweak the motor control sample period and aperture. There are strong opinions on this and it certainly is not necessary. But I have mostly Athearn locos and it seems to do wonders for them for slow speed control. CV 213 = 6 and CV 214 = 9.
+
+Next is setting the decoder’s PID control loop for managing the motor. Not sure what a PID control loop is or the associated variables? Click HERE.
+
+5) Be sure CV 212 is set to 255 (default).
+
+6) Now, set CV209 to 0 and CV 210 to 0. The loco will not move.with these settings. Don't worry, we will get there!
+
+7) OK, now the fun starts. Set your speed controller to speed step 1. Increment up CV 209 one step at a time until the unit just starts to move. Admittedly, going by 1's is a bit tedious, so I got to around 60 or 70 by 10's, then went by 5's, and then by 1's.
+
+8) I then added some integral, CV210, until it started moving reliably when going from speed step zero to one. I found all I needed was 2, 3 or 4.
+
+9) When you do this, you may find that speed at step 1 is too fast, so back down on CV209 a bit, say 5 less.
+
+10) Then played with CV210 to get a good reliable start.
+
+11) I found too much integral, CV210, was the main culprit for the 'cogging' effect. Back off and it does OK.
+
+You now should have a very smooth running loco. I have found, however, that a high CV 212 value will not allow locos to play well together. CV 212 'forces' the BEMF control to keep the motor speed locked on a particular speed. If you are MU'ing locos, even a small difference in motor speeds will tend to cause bucking and rough operation. As such, I will typically back off CV212 to allow the motor speed to drift slightly under load, allowing it to let go of load or pick up load if another loco next to it it pushing or pulling more or less. I like a value of between 120 and 150. Generally this will not affect the settings for CV 209 and 210 much, but it may create a lag between when you go to speed step 1 and when the loco starts to move. If this bugs you, go back to the procedure above and play with CV 209 and 210, or increase CV 212 until it is as you like it. It's an iterative process meaning the more times you go through the steps, the better you will be able to tune a particular loco. Typical values I end up with are:
+
+CV 209 = 100 - 130
+
+CV 210 = 5 - 10
+
+CV 212 = 90-130
+
+Speed tables radically affect these settings, so if you want something other than a straight line speed table, set it up front.
+
+Now set your max forward and reverse speeds with CV 66 and 95. And finally, go back to CV 3 and 4 and add some momentum. If you don't like momentum much, choose a value like 15 or 20. If you like more, well, that is a topic for another page!
+
+ADDENDUM
+
+I have found this works for MOST of my locos. But every so often there are exceptions. There are other procedures that work for tuning. One very popular one is found at “Mr. DCC University” website:
+
+http://www.mrdccu.com/curriculum/soundtraxx/tsunami.htm
+
+Still, there is no magic bullet for this tuning procedure. One I recently did was an Athearn repower that used a Sagami motor. I tried my procedure, as well as the Mr DCC procedure, and neither worked to my satisfaction. Yes, it got much better. But it still had some hesitation on starting. Stay encouraged. It can be a bit frustrating at first, but it is worth it. Just recently I MU’ed 3 locos, each with different decoders and motors, all programmed with a lot of momentum and braking, and they all played well together. It looked, sounded and ran pretty nice!
+
+Mark G Notes:
+
+1) It seems that CV213 is the first one to set for low speed performance before doing anything else. Given the BEMF is weakest at low speeds, you need to increase the sample rate (decrease sample period or make CV213 smaller) to increase the BEMF data to obtain any chance of good BEMF performance. The question is what to set the other CV’s to allow you to determine the best setting of CV213. This concept appears to be correct based on one credible internet report.
+
+Procedure: Leave all other BEMF CV’s at their factory default and only adjusting CV213 and 214 down between 5 and 10 but with identical values between the two will improve performance. A value of 8 is a good place to start.
+
+2) Given CV213 effect on top speed, it seems that CV213 should be dynamic and may in fact be the trick used by other BEMF decoders to get extended slow speed performance. Sample period goes up as the speed step goes down. Sample period goes down and the speed step goes up. This would get you the best of both worlds.
+
+3) Adjustment should be done with momentum and start voltage all set to zero. [1]
+
+NOTES.   Soundtraxx Manual Errors/Questions
+
+[1] The manual also contradicts itself about the use of CV2 (Start Voltage) with BEMF. Some parts of the manual say make it zero while in other parts its OK to be a non zero value implying it has some functionality still. What is the correct answer? I suspect that is still works, but can interfere with BEMF is set to high in that it can prevent one from obtaining low speed performance which is why it should be zero when setting BEMF levels. It could be used to allow one to get the locomotive to move at speed step 1 if it doesn’t when CV2 = 0.
+
+[2] CV10: When working with CV value of 128 to 255, the statement is the control range is 0 to 50%. Yet the equation showing the effective value:
+
+Full Speed Load Compensation = (CV 10 – 128) ÷ 128
+
+This equation shows a min/max range of 0 to 100%. Does 100% of this equation mean 50% of CV212? If so, would not the equation would be more accurate if the divisor was 256?
+
+Full Speed Load Compensation = (CV 10 – 128) ÷ 256
+
+That would show a min/max range of 0 to 50% matching the text description, which I assume to be correct.
+
+[3] Does the User Defined Speed Table defeat the CV settings for BEMF when enabled? It was observed that it does. Response with the straight line was different when it shouldn’t be since that is the effective default curve when not using any defined speed tables.
+
+[4] CV214 appears to be Kd (Dynamic Compensation) since it is described as setting the gain factor of the derivative part of the PID motor control equation or “gain variable”. Yet the name of the CV is “Motor Control Sample Aperture Time” which implies a “time variable”. No units of time are given. What is the correct interpretation? What are the functional limits relative to CV213 or any other BEMF CV? It was reported that a value 3x CV213 will stop the motor.
