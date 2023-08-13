@@ -2,9 +2,9 @@
 #define DATA_WIDTH   NUMBER_OF_SHIFT_CHIPS * 8
 
 
-int EnablePin  = 4; // CE  brownj
-int LoadPin    = 5; // SH/LD   white
-int ClockPin   = 6; // CLK   green
+int EnablePin  = 4; // CE  purple
+int LoadPin    = 6; // SH/LD   yellow
+int ClockPin   = 5; // CLK   green
 int DataPin    = 7; // SER_OUT (Data bit) blue
 
 
@@ -40,7 +40,7 @@ void loop()
     print_byte();
     oldPinValues = pinValues;
   }
-
+delay(50);
 }
 
 unsigned long read_shift_regs()
@@ -72,7 +72,7 @@ unsigned long read_shift_regs()
 void print_byte() {
   byte i;
 
-  Serial.println("*Shift Register Values:*\r\n");
+  Serial.print("*Shift Register Values:*\r\n");
 
   for (byte i = 0; i < DATA_WIDTH ; i++)
   {
@@ -95,7 +95,7 @@ void print_byte() {
 
   }
 
-  Serial.print("\n");
+//  Serial.print("\n");
   Serial.println(); Serial.println();
 
 }
