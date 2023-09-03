@@ -1,3 +1,5 @@
+#include <CMRI.h>
+
 /**
  * C/MRI speedometer outputs
  * ======================================
@@ -29,13 +31,13 @@
  * Shift in chip(s) use pins 4-7 as control and data pins. 
  */
 
-#include <CMRI.h>
 #include <Arduino.h>
+#include <cmri.h>
 
 #define NUMBER_OF_SHIFT_CHIPS 2
 #define DATA_WIDTH NUMBER_OF_SHIFT_CHIPS * 8
 
-int EnablePin = 4;  // CE  brownj
+int EnablePin = 4;  // CE  Lilac
 int LoadPin = 5;    // SH/LD   white
 int ClockPin = 6;   // CLK   green
 int DataPin = 7;    // SER_OUT (Data bit) blue
@@ -45,7 +47,8 @@ int flag = HIGH;
 CMRI cmri(0, DATA_WIDTH, 4);  // defaults to a SMINI with address 0. SMINI = 24 inputs, 48 outputs
 
 void setup() {
-  Serial.begin(9600, SERIAL_8N2);  // make sure this matches your speed set in JMRI
+  //Serial.begin(9600, SERIAL_8N2);  // make sure this matches your speed set in JMRI
+  Serial.begin(115200);
   // init shift in chips
   pinMode(LoadPin, OUTPUT);
   pinMode(EnablePin, OUTPUT);
